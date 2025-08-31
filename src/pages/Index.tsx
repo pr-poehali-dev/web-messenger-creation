@@ -11,6 +11,13 @@ const GameMessenger = () => {
   const [selectedChat, setSelectedChat] = useState(1);
   const [message, setMessage] = useState('');
   const [activeTheme, setActiveTheme] = useState('orange');
+  const [activeSection, setActiveSection] = useState('chats');
+  const [messagesData, setMessagesData] = useState([
+    { id: 1, sender: 'Алекс', avatar: '🎯', text: 'Привет! Как дела с новой игрой?', time: '14:20', isMe: false },
+    { id: 2, sender: 'Вы', avatar: '🚀', text: 'Отлично! Уже прошел первую локацию', time: '14:22', isMe: true },
+    { id: 3, sender: 'Марина', avatar: '⚡', text: 'Кто-нибудь хочет в кооп?', time: '14:25', isMe: false },
+    { id: 4, sender: 'Вы', avatar: '🚀', text: 'Да, я готов! Когда начинаем?', time: '14:26', isMe: true }
+  ]);
 
   const themes = [
     { id: 'orange', name: 'Fire', colors: 'from-game-orange to-red-500' },
@@ -26,12 +33,7 @@ const GameMessenger = () => {
     { id: 4, name: 'Pro Players', avatar: '⭐', lastMessage: 'Тренировка отменена', time: '2 часа', unread: 0, online: true }
   ];
 
-  const messages = [
-    { id: 1, sender: 'Алекс', avatar: '🎯', text: 'Привет! Как дела с новой игрой?', time: '14:20', isMe: false },
-    { id: 2, sender: 'Вы', avatar: '🚀', text: 'Отлично! Уже прошел первую локацию', time: '14:22', isMe: true },
-    { id: 3, sender: 'Марина', avatar: '⚡', text: 'Кто-нибудь хочет в кооп?', time: '14:25', isMe: false },
-    { id: 4, sender: 'Вы', avatar: '🚀', text: 'Да, я готов! Когда начинаем?', time: '14:26', isMe: true }
-  ];
+
 
   const contacts = [
     { id: 1, name: 'Алекс Геймер', avatar: '🎯', status: 'В игре: Cyberpunk 2077', online: true },
@@ -41,6 +43,28 @@ const GameMessenger = () => {
   ];
 
   const getCurrentTheme = () => themes.find(t => t.id === activeTheme) || themes[0];
+
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      const newMessage = {
+        id: messagesData.length + 1,
+        sender: 'Вы',
+        avatar: '🚀',
+        text: message,
+        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        isMe: true
+      };
+      setMessagesData([...messagesData, newMessage]);
+      setMessage('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${getCurrentTheme().colors} p-4 font-open-sans`}>
@@ -58,26 +82,41 @@ const GameMessenger = () => {
               </div>
               
               <nav className="space-y-2">
-                <div className="nav-item text-white">
+                <button 
+                  onClick={() => setActiveSection('chats')}
+                  className={`nav-item w-full text-left ${activeSection === 'chats' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white'}`}
+                >
                   <Icon name="MessageCircle" size={20} />
                   <span>Чаты</span>
-                </div>
-                <div className="nav-item text-white/70 hover:text-white">
+                </button>
+                <button 
+                  onClick={() => setActiveSection('contacts')}
+                  className={`nav-item w-full text-left ${activeSection === 'contacts' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white'}`}
+                >
                   <Icon name="Users" size={20} />
                   <span>Контакты</span>
-                </div>
-                <div className="nav-item text-white/70 hover:text-white">
+                </button>
+                <button 
+                  onClick={() => setActiveSection('profile')}
+                  className={`nav-item w-full text-left ${activeSection === 'profile' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white'}`}
+                >
                   <Icon name="User" size={20} />
                   <span>Профиль</span>
-                </div>
-                <div className="nav-item text-white/70 hover:text-white">
+                </button>
+                <button 
+                  onClick={() => setActiveSection('status')}
+                  className={`nav-item w-full text-left ${activeSection === 'status' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white'}`}
+                >
                   <Icon name="Zap" size={20} />
                   <span>Статус</span>
-                </div>
-                <div className="nav-item text-white/70 hover:text-white">
+                </button>
+                <button 
+                  onClick={() => setActiveSection('settings')}
+                  className={`nav-item w-full text-left ${activeSection === 'settings' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white'}`}
+                >
                   <Icon name="Settings" size={20} />
                   <span>Настройки</span>
-                </div>
+                </button>
               </nav>
             </div>
           </Card>
@@ -88,19 +127,26 @@ const GameMessenger = () => {
           <Card className="h-full bg-black/20 backdrop-blur-lg border-white/10">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-white font-montserrat font-semibold text-lg">Чаты</h2>
+                <h2 className="text-white font-montserrat font-semibold text-lg">
+                  {activeSection === 'chats' && 'Чаты'}
+                  {activeSection === 'contacts' && 'Контакты'}
+                  {activeSection === 'profile' && 'Профиль'}
+                  {activeSection === 'status' && 'Статус'}
+                  {activeSection === 'settings' && 'Настройки'}
+                </h2>
                 <Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
                   <Icon name="Plus" size={16} />
                 </Button>
               </div>
               
-              <div className="space-y-3">
-                {chats.map((chat) => (
-                  <div 
-                    key={chat.id}
-                    onClick={() => setSelectedChat(chat.id)}
-                    className={`chat-item ${selectedChat === chat.id ? 'bg-white/10 border-white/20' : ''}`}
-                  >
+              {activeSection === 'chats' && (
+                <div className="space-y-3">
+                  {chats.map((chat) => (
+                    <div 
+                      key={chat.id}
+                      onClick={() => setSelectedChat(chat.id)}
+                      className={`chat-item ${selectedChat === chat.id ? 'bg-white/10 border-white/20' : ''}`}
+                    >
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Avatar className="w-12 h-12">
@@ -129,7 +175,93 @@ const GameMessenger = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              )}
+
+              {activeSection === 'contacts' && (
+                <div className="space-y-3">
+                  {contacts.map((contact) => (
+                    <div key={contact.id} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 hover:bg-white/5 transition-all duration-300 cursor-pointer">
+                      <div className="relative">
+                        <Avatar className="w-12 h-12">
+                          <AvatarFallback className="bg-gradient-to-br from-game-purple to-game-blue text-white text-lg">
+                            {contact.avatar}
+                          </AvatarFallback>
+                        </Avatar>
+                        {contact.online && (
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black animate-pulse"></div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-medium truncate">{contact.name}</h3>
+                        <p className="text-white/70 text-sm truncate">{contact.status}</p>
+                      </div>
+                      <Button size="sm" className="bg-game-orange hover:bg-game-orange/80 text-white">
+                        <Icon name="MessageCircle" size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeSection === 'profile' && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <Avatar className="w-20 h-20 mx-auto mb-4">
+                      <AvatarFallback className="bg-gradient-to-br from-game-orange to-game-blue text-white text-2xl">
+                        🚀
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-white font-montserrat font-semibold text-xl">Игрок Pro</h3>
+                    <p className="text-white/70">В сети</p>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <p className="text-white/70 text-sm mb-1">Статус</p>
+                      <p className="text-white">Играю в Cyberpunk 2077</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <p className="text-white/70 text-sm mb-1">Уровень</p>
+                      <p className="text-white">42 лвл</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <p className="text-white/70 text-sm mb-1">Очки опыта</p>
+                      <p className="text-white">15,847 XP</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === 'settings' && (
+                <div className="space-y-4">
+                  <div className="bg-white/10 rounded-lg p-4">
+                    <h4 className="text-white font-medium mb-3">Уведомления</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">Звук</span>
+                        <Button size="sm" variant="outline" className="text-white border-white/20">ON</Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">Вибрация</span>
+                        <Button size="sm" variant="outline" className="text-white border-white/20">OFF</Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-4">
+                    <h4 className="text-white font-medium mb-3">Приватность</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">Показывать статус</span>
+                        <Button size="sm" variant="outline" className="text-white border-white/20">ON</Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">Онлайн статус</span>
+                        <Button size="sm" variant="outline" className="text-white border-white/20">ON</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -167,7 +299,7 @@ const GameMessenger = () => {
 
             {/* Сообщения */}
             <div className="flex-1 p-6 overflow-y-auto space-y-4">
-              {messages.map((msg) => (
+              {messagesData.map((msg) => (
                 <div key={msg.id} className={`flex gap-3 animate-fade-in ${msg.isMe ? 'flex-row-reverse' : ''}`}>
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-gradient-to-br from-game-orange to-game-blue text-white text-sm">
@@ -197,13 +329,14 @@ const GameMessenger = () => {
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Написать сообщение..."
                   className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-game-orange"
                 />
                 <Button size="sm" variant="ghost" className="text-white hover:bg-white/10">
                   <Icon name="Smile" size={16} />
                 </Button>
-                <Button className="game-button-primary">
+                <Button onClick={handleSendMessage} className="game-button-primary">
                   <Icon name="Send" size={16} />
                 </Button>
               </div>
